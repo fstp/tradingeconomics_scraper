@@ -328,6 +328,8 @@ async def fetch_vix_term_structure() -> NoReturn:
                 list3 = data[3]
                 zipped_data = zip(list1, list2, list3)
                 for name, current, previous in itertools.islice(zipped_data, 3):
+                    if previous == 0.0:
+                        previous = current
                     nch = round(current - previous, 2)
                     pch = round((current - previous) / previous * 100, 2)
                     dt = datetime.datetime.now().replace(microsecond=0)
