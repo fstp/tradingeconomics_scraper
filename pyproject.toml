@@ -1,0 +1,13 @@
+[project]
+name = "tradingeconomics-scraper"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "aiohttp>=3.13.5",
+    "httpx>=0.28.1",
+    "pynacl>=1.6.2",
+    "python-socketio>=5.16.2",
+    "rich>=15.0.0",
+]

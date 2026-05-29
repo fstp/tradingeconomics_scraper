@@ -1,2 +1,2 @@
 run:
-  . venv/bin/activate && python main.py
+  uv run main.py
