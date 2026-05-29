@@ -8,32 +8,26 @@ import socketio
 from rich.console import Console
 from rich.layout import Layout
 from rich.live import Live
-from rich.panel import Panel
 from rich.table import Table
 
 import decrypt
 
 headers = {
     "Host": "live.tradingeconomics.com",
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:132.0) Gecko/20100101 Firefox/132.0",
+    "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:150.0) Gecko/20100101 Firefox/150.0",
     "Accept": "*/*",
-    "Accept-Language": "en-US,en;q=0.5",
+    "Accept-Language": "en-US,en;q=0.9",
     "Accept-Encoding": "gzip, deflate, br, zstd",
     "Origin": "https://tradingeconomics.com",
-    "DNT": "1",
-    "Sec-GPC": "1",
     "Connection": "keep-alive",
     "Referer": "https://tradingeconomics.com/",
-    "Cookie": "AWSALB=M9i/Ouy2UJgKBqF5jkhrK5rNJnzFUsptSlPcOPOFqxOQD60VmEl1BK5jejTf4/yUTlem2HbLEfjWzKRCjvTWnsRwHwOuRvoX37ts9N3g1WC1y5eV4gW6TfQFAgs7; AWSALBCORS=M9i/Ouy2UJgKBqF5jkhrK5rNJnzFUsptSlPcOPOFqxOQD60VmEl1BK5jejTf4/yUTlem2HbLEfjWzKRCjvTWnsRwHwOuRvoX37ts9N3g1WC1y5eV4gW6TfQFAgs7",
+    "Cookie": "_ga_SZ14JCTXWQ=GS2.1.s1777365737$o5$g1$t1777365766$j31$l0$h0; _ga=GA1.1.610154921.1776951954;AWSALB=iAu4rfE47QQ3vu12Au4vjisioZkH83+1pb3vUdF88F/Y2Eph6FtCJowIwMw9GLsViD7X9g89bOw1d47DoyCHbXy6oH18TrEivVe3vhE3px2xDuEALe91ivqEYQFE;AWSALBCORS=iAu4rfE47QQ3vu12Au4vjisioZkH83+1pb3vUdF88F/Y2Eph6FtCJowIwMw9GLsViD7X9g89bOw1d47DoyCHbXy6oH18TrEivVe3vhE3px2xDuEALe91ivqEYQFE;im_sharedid=af057a05-b2b2-491a-b73e-143fea017568; im_sharedid_cst=znv0HA%3D%3D;FCCDCF=%5Bnull%2Cnull%2Cnull%2C%5B%22CQjHcoAQjHcoAEsACBENCbFoAP_gAEPgACiQK3oB_C7EbCFCiDJ3IKMEMAhHgBBAYsAwAAYBAwAADBIQIBQCgkEYBAyAFCACCAAAKASBAAAgCAAAAUAAIAAFAABEAAwAIBAIIAAAgAAAAEAIAAAACIAAEQCAAAIEAEAAkAgAAAIASEAAAAAAAACBAAAAABAAAAAAAAAABAEAAQAAQAAAAAAAiAAAAAAAABAIAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAABAAAAAAAQgsIgH8LsRsIUKIMFcgowQwCFeAEABiwDAABgEDAAAMEhAgBAKSQRIECIAQIAAIAAAgBAEAACgICAAAQAAAABUAAEQADAAgEAgAQACAAABAQAAAAAAIgAARAIAAAgQAQACACAAAAgBIQAAAAAAAAIEAAAAAEAAAAAAAAAAAAQAAIADAAAAAAACIAAAAAAAAEAgQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAQAA.ILCIB_C7EbCFCiDJ3IKMEMAhXgBBAYsAwAAYBAwAADBIQIBQCkkEaBAyAFCACCAAAKASBAAAoCAgAAUAAIAAVAABEAAwAIBAIIEAAgAAAQEAIAAAACIAAEQCAAAIEAEAAkAgAAAIASEAAAAAAAACBAAAAABAAAAAAAAAABAEAASAAwAAAAAAAiAAAAAAAABAIEAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAABAAAAAAAQgAAE%22%2C%222~61.89.122.161.184.196.230.314.385.442.445.494.550.576.827.1029.1033.1046.1047.1051.1067.1097.1126.1166.1301.1329.1342.1415.1516.1616.1725.1735.1765.1782.1917.1942.1958.1985.1987.2068.2072.2074.2107.2213.2219.2223.2224.2328.2331.2416.2501.2567.2568.2575.2657.2686.2778.2869.2878.2898.2908.2920.2963.3005.3023.3126.3234.3235.3253.3309.3731.6931.8931.13731.15731.33931~dv.%22%2C%2232351499-4C71-48A8-A145-9996D5580AE4%22%5D%2Cnull%2Cnull%2C%5B%5B32%2C%22%5B%5C%220fea8e7e-9fab-4b60-8960-abca6054172c%5C%22%2C%5B1776951960%2C418000000%5D%5D%22%5D%5D%5D;__gads=ID=5b1e8ea853cc3256:T=1776951962:RT=1777365741:S=ALNI_MajW9JXCxWYpzmUXgKhQt_LAkWm8g;__gpi=UID=000013a6224a8953:T=1776951962:RT=1777365741:S=ALNI_MZwOSLx8R7Faz6OCPZBKtaELvFfaQ;__eoi=ID=6706d489d2451dd8:T=1776951962:RT=1777365741:S=AA-AfjaJhZKlsQAyVBCZR_n_7DB5;FCNEC=%5B%5B%22AKsRol8wEn747ooszsLUZNO7X1hmDVcUIgfb1vp20BkgvtP7B4wfxLEBJmgMfBAR1bpAX8Isb2ZN-LrxEgIUtpWVFE8zuST7C5SWnrPtVbcxFnsi0dEVnb1SweCxDi7Hf4HT3sLGrSDztbHAcNNZuaH8Hb_31J4Zcg%3D%3D%22%5D%5D",
     "Sec-Fetch-Dest": "empty",
     "Sec-Fetch-Mode": "cors",
     "Sec-Fetch-Site": "same-site",
-    "Pragma": "no-cache",
-    "Cache-Control": "no-cache",
-    "TE": "trailers",
 }
 
-url = "https://live.tradingeconomics.com/socket.io/?key=rain&url=%2Fsweden%2Fstock-market&t=POQpB1c"
+url = "https://live.tradingeconomics.com/?key=sun&url=%2Fus100%3Aind"
 sio = socketio.AsyncClient()
 console = Console()
 state: Dict[str, Dict[str, Any]] = {}
@@ -63,7 +57,6 @@ symbols_to_names = {
     "short_vix": "Short VIX",
 }
 persistent_state: Dict[str, Dict[str, Any]] = {}
-# iChart-bodyLabels-cnt
 
 
 def timestamp_to_datetime(ts: float) -> datetime.datetime:
@@ -82,7 +75,7 @@ async def disconnect():
     console.print("[red]Disconnected from server[/]")
 
 
-@sio.on("tick")  # type:ignore
+@sio.on("tick")  # type: ignore
 async def handle_tick(data: bytes) -> None:
     """
     Event handler for the "tick" event.
